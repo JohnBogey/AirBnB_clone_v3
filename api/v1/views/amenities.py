@@ -21,17 +21,14 @@ def amenities_manage():
                 abort(400, 'Not a JSON')
         except Exception as e:
             abort(400, 'Not a JSON')
-        if 'email' not in content.keys():
-            abort(400, 'Missing email')
-        if 'password' not in content.keys():
-            abort(400, 'Missing password')
-        new_instance = User(password=content['password'],
-                            email=content['email'])
+        if 'name' not in content.keys():
+            abort(400, 'Missing name')
+        new_instance = User(name=content['name'])
         new_instance.save()
         return jsonify(new_instance.to_dict()), 201
     else:
         user_list = []
-        for user_obj in storage.all("User").values():
+        for user_obj in storage.all("Amenity").values():
             user_list.append(user_obj.to_dict())
         return jsonify(user_list)
 
@@ -50,7 +47,7 @@ def amenity_specific(amenity_id):
                 abort(400, 'Not a JSON')
         except Exception as e:
             abort(400, 'Not a JSON')
-        ignore = ['id', 'email', 'created_at', 'updated_at']
+        ignore = ['id', 'created_at', 'updated_at']
         for key, val in content.items():
             if key not in ignore:
                 setattr(amenity_target, key, val)

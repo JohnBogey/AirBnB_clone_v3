@@ -26,7 +26,7 @@ def reviews_manage():
         if 'password' not in content.keys():
             abort(400, 'Missing password')
         new_instance = review(password=content['password'],
-                            email=content['email'])
+                              email=content['email'])
         new_instance.save()
         return jsonify(new_instance.to_dict()), 201
     else:
