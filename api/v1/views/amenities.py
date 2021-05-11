@@ -23,7 +23,7 @@ def amenities_manage():
             abort(400, 'Not a JSON')
         if 'name' not in content.keys():
             abort(400, 'Missing name')
-        new_instance = User(name=content['name'])
+        new_instance = Amenity(name=content['name'])
         new_instance.save()
         return jsonify(new_instance.to_dict()), 201
     else:

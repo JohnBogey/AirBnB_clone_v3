@@ -11,9 +11,13 @@ from models.amenity import Amenity
 from models.review import Review
 
 
-@app_views.route('/reviews', methods=['GET', 'POST'], strict_slashes=False)
-def reviews_manage():
+@app_views.route('/places/<place_id>/reviews',
+                 methods=['GET', 'POST'], strict_slashes=False)
+def reviews_manage(place_id):
     '''returns list of reviews or creates new one'''
+    place_target = storage.get(Place, place_id)
+    if place_target is None:
+        abort(404)
     if request.method == 'POST':
         try:
             content = request.get_json()
@@ -21,17 +25,17 @@ def reviews_manage():
                 abort(400, 'Not a JSON')
         except Exception as e:
             abort(400, 'Not a JSON')
-        if 'email' not in content.keys():
-            abort(400, 'Missing email')
-        if 'password' not in content.keys():
-            abort(400, 'Missing password')
-        new_instance = review(password=content['password'],
-                              email=content['email'])
+        if 'user_id' not in content.keys():
+            abort(400, 'Missing user_id')
+        if 'text' not in content.keys():
+            abort(400, 'Missing text')
+        new_instance = Review(place_id=place_id, text=content['text'],
+                              user_id=content['user_id'])
         new_instance.save()
         return jsonify(new_instance.to_dict()), 201
     else:
         review_list = []
-        for review_obj in storage.all("review").values():
+        for review_obj in place_target.reviews:
             review_list.append(review_obj.to_dict())
         return jsonify(review_list)
 
@@ -40,7 +44,7 @@ def reviews_manage():
                  strict_slashes=False)
 def review_specific(review_id):
     '''manages specific state object'''
-    review_target = storage.get(review, review_id)
+    review_target = storage.get(Review, review_id)
     if review_target is None:
         abort(404)
     if request.method == 'PUT':
@@ -50,7 +54,7 @@ def review_specific(review_id):
                 abort(400, 'Not a JSON')
         except Exception as e:
             abort(400, 'Not a JSON')
-        ignore = ['id', 'email', 'created_at', 'updated_at']
+        ignore = ['id', 'user_id', 'created_at', 'updated_at']
         for key, val in content.items():
             if key not in ignore:
                 setattr(review_target, key, val)
