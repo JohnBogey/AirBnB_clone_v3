@@ -13,7 +13,7 @@ from models.review import Review
 
 @app_views.route('cities/<city_id>/places', methods=['GET', 'POST'],
                  strict_slashes=False)
-def places_manage():
+def places_manage(city_id):
     '''returns list of places or creates new one'''
     city_target = storage.get(City, city_id)
     if city_target is None:
